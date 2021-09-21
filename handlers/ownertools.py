@@ -51,9 +51,9 @@ async def broadcast_handler_open(_, m: Message):
 async def ban(c: Client, m: Message):
     if len(m.command) == 1:
         await m.reply_text(
-            f"this command for ban user, read /help for more info !",
-            quote=True
+            'this command for ban user, read /help for more info !', quote=True
         )
+
         return
     try:
         user_id = int(m.command[1])
@@ -88,18 +88,16 @@ async def ban(c: Client, m: Message):
 async def unban(c: Client, m: Message):
     if len(m.command) == 1:
         await m.reply_text(
-            f"this command for unban user, read /help for more info !",
-            quote=True
+            'this command for unban user, read /help for more info !',
+            quote=True,
         )
+
         return
     try:
         user_id = int(m.command[1])
         unban_log_text = f"`unbanning user...` \n**user id:**{user_id}"
         try:
-            await c.send_message(
-                user_id,
-                f"🎊 congratulations, you was unbanned!"
-            )
+            await c.send_message(user_id, '🎊 congratulations, you was unbanned!')
             unban_log_text += '\n\n✅ this notification was sent to that user'
         except:
             traceback.print_exc()
