@@ -1,7 +1,7 @@
-from pyrogram import Client
+from callsmusic.callsmusic import client as veez
 from config import BOT_USERNAME
 from helpers.filters import command
-from callsmusic.callsmusic import client as veez
+from pyrogram import Client
 
 
 @Client.on_message(command(["vk", f"vk@{BOT_USERNAME}"]))

@@ -1,6 +1,7 @@
-import yaml
 import os
 from string import Formatter
+
+import yaml
 from config import LANG
 
 

@@ -1,9 +1,12 @@
 # (C) 2021 VeezMusic-Project
 
-from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, Chat, CallbackQuery
+from config import (ASSISTANT_NAME, BOT_NAME, BOT_USERNAME, GROUP_SUPPORT,
+                    OWNER_NAME, UPDATES_CHANNEL)
 from helpers.decorators import authorized_users_only
-from config import BOT_NAME, BOT_USERNAME, OWNER_NAME, GROUP_SUPPORT, UPDATES_CHANNEL, ASSISTANT_NAME
+from pyrogram import Client, filters
+from pyrogram.types import (CallbackQuery, Chat, InlineKeyboardButton,
+                            InlineKeyboardMarkup, Message)
+
 from handlers.play import cb_admin_check
 
 

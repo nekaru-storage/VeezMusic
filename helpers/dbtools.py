@@ -1,15 +1,18 @@
-import os
-import time
-import string
-import random
-import datetime
-import aiofiles
 import asyncio
+import datetime
+import os
+import random
+import string
+import time
 import traceback
-from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
 
-from helpers.database import db, Database, dcmdb
-from config import LOG_CHANNEL, BROADCAST_AS_COPY, GROUP_SUPPORT
+import aiofiles
+from config import BROADCAST_AS_COPY, GROUP_SUPPORT, LOG_CHANNEL
+from pyrogram.errors import (FloodWait, InputUserDeactivated, PeerIdInvalid,
+                             UserIsBlocked)
+
+from helpers.database import Database, db, dcmdb
+
 
 async def handle_user_status(bot, cmd):
     chat_id = cmd.chat.id
@@ -62,7 +65,7 @@ async def main_broadcast_handler(m, db):
     all_users = await db.get_all_users()
     broadcast_msg = m.reply_to_message
     while True:
-        broadcast_id = ''.join([random.choice(string.ascii_letters) for i in range(3)])
+        broadcast_id = ''.join(random.choice(string.ascii_letters) for i in range(3))
         if not broadcast_ids.get(broadcast_id):
             break
     out = await m.reply_text(
@@ -130,9 +133,7 @@ delcmdmdb = dcmdb.admins
 
 async def delcmd_is_on(chat_id: int) -> bool:
     chat = await delcmdmdb.find_one({"chat_id": chat_id})
-    if not chat:
-        return True
-    return False
+    return not chat
 
 
 async def delcmd_on(chat_id: int):

@@ -1,25 +1,25 @@
-from pyrogram import Client
 import asyncio
-from config import SUDO_USERS, PMPERMIT, OWNER_NAME, BOT_NAME, UPDATES_CHANNEL, GROUP_SUPPORT
-from pyrogram import filters
-from pyrogram.types import Message
+
 from callsmusic.callsmusic import client as USER
+from config import (BOT_NAME, GROUP_SUPPORT, OWNER_NAME, PMPERMIT, SUDO_USERS,
+                    UPDATES_CHANNEL)
+from pyrogram import Client, filters
+from pyrogram.types import Message
 
 PMSET =True
 pchats = []
 
 @USER.on_message(filters.text & filters.private & ~filters.me & ~filters.bot)
 async def pmPermit(client: USER, message: Message):
-    if PMPERMIT == "ENABLE":
-        if PMSET:
-            chat_id = message.chat.id
-            if chat_id in pchats:
-                return
-            await USER.send_message(
-                message.chat.id,
-            f"✨ Hello, i'm a official **music assistant of {BOT_NAME}.**\n\n❗️ **notes:**\n\n⫸ don't spam message.\n⫸ don't send me anything confidential\n\n⨀ Join to @{UPDATES_CHANNEL} \n⨀ Join to @{GROUP_SUPPORT}\n\n👩🏻‍💻 Dev: @{OWNER_NAME}\n\n👩🏻‍🔧 If you want me join to your group, send here your group link, I will joined as soon as possible.\n\n",
-            )
+    if PMPERMIT == "ENABLE" and PMSET:
+        chat_id = message.chat.id
+        if chat_id in pchats:
             return
+        await USER.send_message(
+            message.chat.id,
+        f"✨ Hello, i'm a official **music assistant of {BOT_NAME}.**\n\n❗️ **notes:**\n\n⫸ don't spam message.\n⫸ don't send me anything confidential\n\n⨀ Join to @{UPDATES_CHANNEL} \n⨀ Join to @{GROUP_SUPPORT}\n\n👩🏻‍💻 Dev: @{OWNER_NAME}\n\n👩🏻‍🔧 If you want me join to your group, send here your group link, I will joined as soon as possible.\n\n",
+        )
+        return
 
     
 
@@ -38,10 +38,10 @@ async def bye(client: Client, message: Message):
             await message.reply_text("❎ pmpermit turned off")
             return
 
-@USER.on_message(filters.text & filters.private & filters.me)        
+@USER.on_message(filters.text & filters.private & filters.me)
 async def autopmPermiat(client: USER, message: Message):
     chat_id = message.chat.id
-    if not chat_id in pchats:
+    if chat_id not in pchats:
         pchats.append(chat_id)
         await message.reply_text("approved to pm due to outgoing messages")
         return
@@ -50,7 +50,7 @@ async def autopmPermiat(client: USER, message: Message):
 @USER.on_message(filters.command("yes", [".", ""]) & filters.me & filters.private)
 async def pmPermiat(client: USER, message: Message):
     chat_id = message.chat.id
-    if not chat_id in pchats:
+    if chat_id not in pchats:
         pchats.append(chat_id)
         await message.reply_text("✅ approved to pm.")
         return

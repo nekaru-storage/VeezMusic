@@ -2,10 +2,9 @@ import sys
 import traceback
 from functools import wraps
 
+from config import LOG_CHANNEL
 from pyrogram import Client
 from pyrogram.errors.exceptions.forbidden_403 import ChatWriteForbidden
-
-from config import LOG_CHANNEL
 
 
 def split_limits(text):

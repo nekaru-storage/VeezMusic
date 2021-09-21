@@ -1,25 +1,28 @@
 # Copyright (C) 2021 VeezMusicProject
 
-import traceback
 import asyncio
+import traceback
 from asyncio import QueueEmpty
-from config import que
-from pyrogram import Client, filters
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, Chat, CallbackQuery, ChatPermissions
 
 from cache.admins import admins
-from helpers.channelmusic import get_chat_id
-from helpers.decorators import authorized_users_only, errors
-from handlers.play import cb_admin_check
-from helpers.filters import command, other_filters
 from callsmusic import callsmusic
 from callsmusic.queues import queues
-from config import LOG_CHANNEL, OWNER_ID, BOT_USERNAME, COMMAND_PREFIXES
-from helpers.database import db, dcmdb, Database
-from helpers.dbtools import handle_user_status, delcmd_is_on, delcmd_on, delcmd_off
+from config import BOT_USERNAME, COMMAND_PREFIXES, LOG_CHANNEL, OWNER_ID, que
+from helpers.channelmusic import get_chat_id
+from helpers.database import Database, db, dcmdb
+from helpers.dbtools import (delcmd_is_on, delcmd_off, delcmd_on,
+                             handle_user_status)
+from helpers.decorators import authorized_users_only, errors
+from helpers.filters import command, other_filters
 from helpers.helper_functions.admin_check import admin_check
 from helpers.helper_functions.extract_user import extract_user
 from helpers.helper_functions.string_handling import extract_time
+from pyrogram import Client, filters
+from pyrogram.types import (CallbackQuery, Chat, ChatPermissions,
+                            InlineKeyboardButton, InlineKeyboardMarkup,
+                            Message)
+
+from handlers.play import cb_admin_check
 
 
 @Client.on_message()
@@ -39,10 +42,8 @@ async def delcmd(_, message: Message):
 @Client.on_message(filters.command(["reload", f"reload@{BOT_USERNAME}"]) & other_filters)
 async def update_admin(client, message):
     global admins
-    new_admins = []
     new_ads = await client.get_chat_members(message.chat.id, filter="administrators")
-    for u in new_ads:
-        new_admins.append(u.user.id)
+    new_admins = [u.user.id for u in new_ads]
     admins[message.chat.id] = new_admins
     await message.reply_text("✅ Bot **reloaded correctly !**\n✅ **Admin list** has been **updated !**")
 
@@ -205,11 +206,10 @@ async def delcmdc(_, message: Message):
     if status == "on":
         if await delcmd_is_on(message.chat.id):
             return await message.reply_text("✅ already activated")
-        else:
-            await delcmd_on(chat_id)
-            await message.reply_text(
-                "🟢 activated successfully"
-            )
+        await delcmd_on(chat_id)
+        await message.reply_text(
+            "🟢 activated successfully"
+        )
     elif status == "off":
         await delcmd_off(chat_id)
         await message.reply_text("🔴 disabled successfully")

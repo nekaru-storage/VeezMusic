@@ -4,25 +4,17 @@
 
 from os import path
 
+import converter
+from callsmusic import callsmusic, queues
+from config import (AUD_IMG, BOT_USERNAME, DURATION_LIMIT, GROUP_SUPPORT,
+                    QUE_IMG, UPDATES_CHANNEL)
+from downloaders import youtube
+from helpers.filters import command, other_filters
+from helpers.gets import get_file_name, get_url
 from pyrogram import Client
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
-from callsmusic import callsmusic, queues
-
-import converter
-from downloaders import youtube
-
-from config import (
-    DURATION_LIMIT,
-    UPDATES_CHANNEL,
-    AUD_IMG,
-    QUE_IMG,
-    GROUP_SUPPORT,
-    BOT_USERNAME,
-)
 from handlers.play import convert_seconds
-from helpers.filters import command, other_filters
-from helpers.gets import get_url, get_file_name
 
 
 @Client.on_message(command(["stream", f"stream@{BOT_USERNAME}"]) & other_filters)
@@ -47,22 +39,18 @@ async def stream(_, message: Message):
     audio = message.reply_to_message.audio if message.reply_to_message else None
     url = get_url(message)
 
-    if audio:
-        if round(audio.duration / 60) > DURATION_LIMIT:
-            return await lel.edit(f"❌ **music with duration more than** `{DURATION_LIMIT}` **minutes, can't play !**")
-
-        file_name = get_file_name(audio)
-        title = audio.title
-        duration = convert_seconds(audio.duration)
-        file_path = await converter.convert(
-            (await message.reply_to_message.download(file_name))
-            if not path.isfile(path.join("downloads", file_name)) else file_name
-        )
-    elif url:
+    if not audio:
         return await lel.edit("❗ **reply to a telegram audio file.**")
-    else:
-        return await lel.edit("❗ **reply to a telegram audio file.**")
+    if round(audio.duration / 60) > DURATION_LIMIT:
+        return await lel.edit(f"❌ **music with duration more than** `{DURATION_LIMIT}` **minutes, can't play !**")
 
+    file_name = get_file_name(audio)
+    title = audio.title
+    duration = convert_seconds(audio.duration)
+    file_path = await converter.convert(
+        (await message.reply_to_message.download(file_name))
+        if not path.isfile(path.join("downloads", file_name)) else file_name
+    )
     if message.chat.id in callsmusic.pytgcalls.active_calls:
         position = await queues.put(message.chat.id, file=file_path)
         await message.reply_photo(
@@ -70,7 +58,6 @@ async def stream(_, message: Message):
             caption=f"💡 **Track added to queue »** `{position}`\n\n🏷 **Name:** {title[:50]}\n⏱ **Duration:** `{duration}`\n🎧 **Request by:** {costumer}",
             reply_markup=keyboard,
         )
-        return await lel.delete()
     else:
         callsmusic.pytgcalls.join_group_call(message.chat.id, file_path)
         await message.reply_photo(
@@ -79,4 +66,5 @@ async def stream(_, message: Message):
                    +f"🎧 **Request by:** {costumer}",
             reply_markup=keyboard,
         )
-        return await lel.delete()
+
+    return await lel.delete()
