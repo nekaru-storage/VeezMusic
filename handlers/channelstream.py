@@ -40,9 +40,7 @@ async def playlist(client, message):
     queue = que.get(lol)
     if not queue:
         await message.reply_text("player is not connected to voice chat")
-    temp = []
-    for t in queue:
-        temp.append(t)
+    temp = [t for t in queue]
     now_playing = temp[0][0]
     by = temp[0][1].mention(style="md")
     msg = "💡 **now playing** on {}".format(lel.linked_chat.title)
@@ -79,11 +77,7 @@ def updated_stats(chat, queue, vol=100):
 
 
 def r_ply(type_):
-    if type_ == "play":
-        pass
-    else:
-        pass
-    mar = InlineKeyboardMarkup(
+    return InlineKeyboardMarkup(
         [
             [
                 InlineKeyboardButton("⏹", "cleave"),
@@ -97,7 +91,6 @@ def r_ply(type_):
             [InlineKeyboardButton("🗑 Close", "ccls")],
         ]
     )
-    return mar
 
 
 @Client.on_message(command(["ccurent", f"ccurent@{BOT_USERNAME}"]) & other_filters)
@@ -122,7 +115,6 @@ async def ee(client, message):
 @Client.on_message(command(["cplayer", f"cplayer@{BOT_USERNAME}"]) & other_filters)
 @authorized_users_only
 async def settings(client, message):
-    playing = None
     try:
         lel = await client.get_chat(message.chat.id)
         lol = lel.linked_chat.id
@@ -135,6 +127,7 @@ async def settings(client, message):
     queue = que.get(lol)
     stats = updated_stats(conv, queue)
     if stats:
+        playing = None
         if playing:
             await message.reply(stats, reply_markup=r_ply("pause"))
 
@@ -162,9 +155,7 @@ async def p_cb(b, cb):
         queue = que.get(lol)
         if not queue:
             await cb.message.edit("player is not connected to voice chat !")
-        temp = []
-        for t in queue:
-            temp.append(t)
+        temp = [t for t in queue]
         now_playing = temp[0][0]
         by = temp[0][1].mention(style="md")
         msg = "**Now Playing** in {}".format(conv.title)
@@ -234,9 +225,7 @@ async def m_cb(b, cb):
         queue = que.get(cb.message.chat.id)
         if not queue:
             await cb.message.edit("player is not connected to voice chat !")
-        temp = []
-        for t in queue:
-            temp.append(t)
+        temp = [t for t in queue]
         now_playing = temp[0][0]
         by = temp[0][1].mention(style="md")
         msg = "💡 **now Playing** on {}".format(cb.message.chat.title)
@@ -312,17 +301,16 @@ async def m_cb(b, cb):
                 await cb.message.edit((m_chat, qeue), reply_markup=r_ply(the_data))
                 await cb.message.reply_text("⏭ **You've skipped to the next song.**")
 
-    else:
-        if chet_id in callsmusic.pytgcalls.active_calls:
-            try:
-                queues.clear(chet_id)
-            except QueueEmpty:
-                pass
+    elif chet_id in callsmusic.pytgcalls.active_calls:
+        try:
+            queues.clear(chet_id)
+        except QueueEmpty:
+            pass
 
-            callsmusic.pytgcalls.leave_group_call(chet_id)
-            await cb.message.edit("music player was disconnected from voice chat !")
-        else:
-            await cb.answer("chat is not connected !", show_alert=True)
+        callsmusic.pytgcalls.leave_group_call(chet_id)
+        await cb.message.edit("music player was disconnected from voice chat !")
+    else:
+        await cb.answer("chat is not connected !", show_alert=True)
 
 
 @Client.on_message(command(["cplay", f"cplay@{BOT_USERNAME}"]) & other_filters)
@@ -389,8 +377,9 @@ async def play(_, message: Message):
         # lmoa = await client.get_chat_member(chid,wew)
     except:
         await lel.edit(
-            f"❌ `NOT_IN_GROUP`\n\n» **The userbot not in this group, bot can't play music.**"
+            "❌ `NOT_IN_GROUP`\n\n» **The userbot not in this group, bot can't play music.**"
         )
+
         return
     message.from_user.id
     text_links = None
@@ -404,9 +393,10 @@ async def play(_, message: Message):
     if message.reply_to_message:
         entities = []
         toxt = message.reply_to_message.text or message.reply_to_message.caption
-        if message.reply_to_message.entities:
-            entities = message.reply_to_message.entities + entities
-        elif message.reply_to_message.caption_entities:
+        if (
+            message.reply_to_message.entities
+            or message.reply_to_message.caption_entities
+        ):
             entities = message.reply_to_message.entities + entities
         urls = [entity for entity in entities if entity.type == "url"]
         text_links = [entity for entity in entities if entity.type == "text_link"]
@@ -492,9 +482,7 @@ async def play(_, message: Message):
         await generate_cover(title, thumbnail)
         file_path = await convert(youtube.download(url))
     else:
-        query = ""
-        for i in message.command[1:]:
-            query += " " + str(i)
+        query = "".join(" " + str(i) for i in message.command[1:])
         print(query)
         await lel.edit("🎵 **sending audio...**")
         ydl_opts = {"format": "bestaudio[ext=m4a]"}
@@ -551,8 +539,6 @@ async def play(_, message: Message):
             caption=f"💡 **Track added to queue »** `{position}`\n\n🏷 **Name:** [{title[:35]}...]({url})\n⏱ **Duration:** `{duration}`\n🎧 **Request by:** {message.from_user.mention}",
             reply_markup=keyboard,
         )
-        os.remove("final.png")
-        return await lel.delete()
     else:
         chat_id = chid
         que[chat_id] = []
@@ -569,5 +555,5 @@ async def play(_, message: Message):
             + f"🎧 **Request by:** {message.from_user.mention}",
             reply_markup=keyboard,
         )
-        os.remove("final.png")
-        return await lel.delete()
+    os.remove("final.png")
+    return await lel.delete()

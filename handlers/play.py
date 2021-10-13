@@ -46,9 +46,8 @@ def cb_admin_check(func: Callable) -> Callable:
         admemes = a.get(cb.message.chat.id)
         if cb.from_user.id in admemes:
             return await func(client, cb)
-        else:
-            await cb.answer("💡 only admin can tap this button !", show_alert=True)
-            return
+        await cb.answer("💡 only admin can tap this button !", show_alert=True)
+        return
 
     return decorator
 
@@ -81,8 +80,7 @@ def changeImageSize(maxWidth, maxHeight, image):
     heightRatio = maxHeight / image.size[1]
     newWidth = int(widthRatio * image.size[0])
     newHeight = int(heightRatio * image.size[1])
-    newImage = image.resize((newWidth, newHeight))
-    return newImage
+    return image.resize((newWidth, newHeight))
 
 
 async def generate_cover(title, thumbnail, ctitle):
@@ -132,9 +130,7 @@ async def playlist(client, message):
     queue = que.get(message.chat.id)
     if not queue:
         await message.reply_text("❌ **no music is currently playing**")
-    temp = []
-    for t in queue:
-        temp.append(t)
+    temp = [t for t in queue]
     now_playing = temp[0][0]
     by = temp[0][1].mention(style="md")
     msg = "💡 **now playing** on {}".format(message.chat.title)
@@ -168,11 +164,7 @@ def updated_stats(chat, queue, vol=100):
 
 
 def r_ply(type_):
-    if type_ == "play":
-        pass
-    else:
-        pass
-    mar = InlineKeyboardMarkup(
+    return InlineKeyboardMarkup(
         [
             [
                 InlineKeyboardButton("⏹", "leave"),
@@ -186,7 +178,6 @@ def r_ply(type_):
             [InlineKeyboardButton("🗑 Close", "cls")],
         ]
     )
-    return mar
 
 
 @Client.on_message(
@@ -232,15 +223,15 @@ async def music_onoff(_, message):
         return
     status = message.text.split(None, 1)[1]
     message.chat.id
-    if status == "ON" or status == "on" or status == "On":
+    if status in ["ON", "on", "On"]:
         lel = await message.reply("`processing...`")
-        if not message.chat.id in DISABLED_GROUPS:
+        if message.chat.id not in DISABLED_GROUPS:
             await lel.edit("» **music player already turned on.**")
             return
         DISABLED_GROUPS.remove(message.chat.id)
         await lel.edit(f"✅ **music player turned on**\n\n💬 `{message.chat.id}`")
 
-    elif status == "OFF" or status == "off" or status == "Off":
+    elif status in ["OFF", "off", "Off"]:
         lel = await message.reply("`processing...`")
 
         if message.chat.id in DISABLED_GROUPS:
@@ -279,9 +270,7 @@ async def p_cb(b, cb):
         queue = que.get(cb.message.chat.id)
         if not queue:
             await cb.message.edit("❌ **no music is currently playing**")
-        temp = []
-        for t in queue:
-            temp.append(t)
+        temp = [t for t in queue]
         now_playing = temp[0][0]
         by = temp[0][1].mention(style="md")
         msg = "💡 **now playing** on {}".format(cb.message.chat.title)
@@ -364,9 +353,7 @@ async def m_cb(b, cb):
         queue = que.get(cb.message.chat.id)
         if not queue:
             await cb.message.edit("❌ **no music is currently playing**")
-        temp = []
-        for t in queue:
-            temp.append(t)
+        temp = [t for t in queue]
         now_playing = temp[0][0]
         by = temp[0][1].mention(style="md")
         msg = "💡 **now playing** on {}".format(cb.message.chat.title)
@@ -384,7 +371,6 @@ async def m_cb(b, cb):
         await cb.message.edit(msg, reply_markup=keyboard)
 
     elif type_ == "resume":
-        psn = "▶ music playback has resumed"
         if (chet_id not in callsmusic.pytgcalls.active_calls) or (
             callsmusic.pytgcalls.active_calls[chet_id] == "playing"
         ):
@@ -393,10 +379,10 @@ async def m_cb(b, cb):
             )
         else:
             callsmusic.pytgcalls.resume_stream(chet_id)
+            psn = "▶ music playback has resumed"
             await cb.message.edit(psn, reply_markup=keyboard)
 
     elif type_ == "puse":
-        spn = "⏸ music playback has paused"
         if (chet_id not in callsmusic.pytgcalls.active_calls) or (
             callsmusic.pytgcalls.active_calls[chet_id] == "paused"
         ):
@@ -406,6 +392,7 @@ async def m_cb(b, cb):
         else:
             callsmusic.pytgcalls.pause_stream(chet_id)
 
+            spn = "⏸ music playback has paused"
             await cb.message.edit(spn, reply_markup=keyboard)
 
     elif type_ == "cls":
@@ -431,7 +418,6 @@ async def m_cb(b, cb):
 
     elif type_ == "skip":
         nmq = "❌ no more music in __Queues__\n\n» **userbot leaving** voice chat"
-        mmk = "⏭ you skipped to the next music"
         if qeue:
             qeue.pop(0)
         if chet_id not in callsmusic.pytgcalls.active_calls:
@@ -444,6 +430,7 @@ async def m_cb(b, cb):
             if callsmusic.queues.is_empty(chet_id):
                 callsmusic.pytgcalls.leave_group_call(chet_id)
 
+                nmq = "❌ no more music in __Queues__\n\n» **userbot leaving** voice chat"
                 await cb.message.edit(
                     nmq,
                     reply_markup=InlineKeyboardMarkup(
@@ -454,10 +441,10 @@ async def m_cb(b, cb):
                 callsmusic.pytgcalls.change_stream(
                     chet_id, callsmusic.queues.get(chet_id)["file"]
                 )
+                mmk = "⏭ you skipped to the next music"
                 await cb.message.edit(mmk, reply_markup=keyboard)
 
     elif type_ == "leave":
-        hps = "✅ **the music playback has ended**"
         if chet_id in callsmusic.pytgcalls.active_calls:
             try:
                 callsmusic.queues.clear(chet_id)
@@ -465,6 +452,7 @@ async def m_cb(b, cb):
                 pass
 
             callsmusic.pytgcalls.leave_group_call(chet_id)
+            hps = "✅ **the music playback has ended**"
             await cb.message.edit(
                     hps,
                     reply_markup=InlineKeyboardMarkup(
@@ -478,7 +466,7 @@ async def m_cb(b, cb):
 
 
 @Client.on_message(command(["play", f"play@{BOT_USERNAME}"]) & other_filters)
-async def play(_, message: Message):
+async def play(_, message: Message):  # sourcery skip: remove-redundant-if
     global que
     global useer
     if message.chat.id in DISABLED_GROUPS:
