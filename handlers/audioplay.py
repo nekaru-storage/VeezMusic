@@ -55,9 +55,7 @@ async def stream(_, message: Message):
         else file_name
     )
     chat_id = message.chat.id
-    ACTV_CALLS = []
-    for x in callsmusic.pytgcalls.active_calls:
-        ACTV_CALLS.append(int(x.chat_id))    
+    ACTV_CALLS = [int(x.chat_id) for x in callsmusic.pytgcalls.active_calls]
     if chat_id in ACTV_CALLS:
         position = await queues.put(chat_id, file=file_path)
         await message.reply_photo(
